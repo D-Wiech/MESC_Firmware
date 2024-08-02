@@ -27,6 +27,7 @@
 
 #include "stm32fxxx_hal.h"
 #include "MESCfoc.h"
+#include "MESC_H743_EasyDIY.h"
 
 
 #define FLASH_STORAGE_PAGE 	7

@@ -28,7 +28,7 @@
 */
 
 #include "MESCtemp.h"
-#include "util_ntc.h"
+//#include "util_ntc.h"
 
 #include "conversions.h"
 
@@ -38,6 +38,17 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
+
+struct NTCNode
+{
+    float   T;
+    float   R;
+};
+
+typedef struct NTCNode NTCNode;
+
+extern NTCNode const * const ntc_T_R;
+extern size_t  const         ntc_T_R_count;
 
 static void ntc_T_minmax( float * Tmin, float * Tmax)
 {

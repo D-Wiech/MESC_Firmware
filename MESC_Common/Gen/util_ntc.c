@@ -100,7 +100,7 @@ static void derive_Steinhart_Hart( NTCNode const * node, size_t const count )
 #undef PARTITIONS
 }
 
-int main ( int argc, char ** argv )
+int main_util ( int argc, char ** argv )
 {
     derive_Steinhart_Hart( ntc_T_R, ntc_T_R_count );
 

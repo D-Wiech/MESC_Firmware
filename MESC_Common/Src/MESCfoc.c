@@ -46,6 +46,7 @@
 #include "MESCspeed.h"
 #include "MESCerror.h"
 #include "MESCposition.h"
+#include "MESC_H743.h"
 
 #ifdef MESC_UART_USB
 #include "usbd_cdc_if.h"
@@ -102,7 +103,8 @@ void MESCInit(MESC_motor_typedef *_motor) {
 #ifdef STM32L4 // For some reason, ST have decided to have a different name for the L4 timer DBG freeze...
 	DBGMCU->APB2FZ |= DBGMCU_APB2FZ_DBG_TIM1_STOP;
 #else
-	DBGMCU->APB2FZ |= DBGMCU_APB2_FZ_DBG_TIM1_STOP;
+	//DBGMCU->APB2FZ |= DBGMCU_APB2_FZ_DBG_TIM1_STOP;
+	//Different command for the H7
 #endif
 #ifdef FASTLED
 	FASTLED->MODER |= 0x1<<(FASTLEDIONO*2);

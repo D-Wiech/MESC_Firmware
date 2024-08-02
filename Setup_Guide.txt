@@ -1,0 +1,19 @@
+IDE Setup (Windows):
+
+1. Create an main Folder (in the following MESC_Project Folder)
+
+2. Clone this repository in the MESC Projekt Folder
+
+Now you should have the following file structure:
+
+- MESC_Project
+	- MESC_Fimrware
+		- MESC_COMMON
+		- …
+3. Create an STM32Cube ide Workspace in the MESC_Project Folder
+
+4. Create your own STM32 Project in MESC_Firmware
+
+5. Resolve the includes - your project must point to ../MESC_Common/Inc in Properties ->C/C++ General->Paths and symbols
+
+If you Hardware uses an STM32 MCU not part of the STM32F series, create an header file called stm32fxxx_hal.h and include inside that haeder the equivalent file for you MCU series

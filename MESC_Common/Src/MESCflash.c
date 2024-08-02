@@ -8,6 +8,7 @@
 #include "MESCflash.h"
 
 #include "stm32fxxx_hal.h"
+#define STM32L4xx_HAL_H
 
 static ProfileStatus readFlash( void        * const buffer, uint32_t const address, uint32_t const length )
 {

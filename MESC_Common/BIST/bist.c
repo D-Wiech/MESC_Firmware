@@ -384,7 +384,7 @@ static int virt_flash( int argc, char * argv[] )
     return ret;
 }
 
-int main( int argc, char * argv[] )
+int main_bist( int argc, char * argv[] )
 {
     bool const en   = (argc > 1) ? false : true;
     bool en_bat     = en;
