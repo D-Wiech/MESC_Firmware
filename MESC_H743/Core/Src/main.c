@@ -31,6 +31,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "./infineon_6EDL7141.h"
+#include "us_time.h"
 
 #include "MESCprofile.h"
 #include "MESCmotor.h"
@@ -133,8 +135,30 @@ int main(void)
 	mtr[0].mtimer = &htim8;
 	mtr[0].stimer = &htim3;
 
+	HAL_NVIC_EnableIRQ(UART5_IRQn);
+	us_time_init();
+	HAL_GPIO_LockPin(GND1_GPIO_Port, GND1_Pin);
+	HAL_GPIO_LockPin(GND2_GPIO_Port, GND2_Pin);
+	//printf(" BOOT successful!\n");
+	struct _6EDL7141_driver driver_hw;
+	struct _6EDL7141_stat driver_status;
+	struct _6EDL7141_config driver_config;
+	driver_hw.CS_PIN = SPI4_CS_Pin;
+	driver_hw.GPI_PORT = SPI4_CS_GPIO_Port;
+	driver_hw.SPI_Handle = hspi4;
+	driver_hw.ENABLE_PIN = DRIVER_ENABLE_Pin;
+	driver_hw.ENABLE_GPIO_PORT = DRIVER_ENABLE_GPIO_Port;
+	driver_hw.NBRAKE_PIN = DRIVER_NBRAKE_Pin;
+	driver_hw.NBRAKE_PORT = DRIVER_NBRAKE_GPIO_Port;
+	int reslt = Infineon6EDL7141Driver_init(&driver_hw, &driver_status, &driver_config);
+	Infineon6EDL7141Driver_setCSAMPgain(&driver_hw, &driver_config, _12X);
+	Infineon6EDL7141Driver_setDeadTime(&driver_hw, &driver_config, 5);
+	if(reslt == 0) Infineon6EDL7141Driver_ENABLE(&driver_hw);
+
 	motor_init(NULL);
 	MESCInit(&mtr[0]);
+
+	uart_init();
   /* USER CODE END 2 */
 
   /* Infinite loop */

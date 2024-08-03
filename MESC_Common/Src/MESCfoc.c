@@ -60,7 +60,7 @@
 #include <stdio.h>
 #endif
 
-extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim8;
 extern TIM_HandleTypeDef htim4;
 extern ADC_HandleTypeDef hadc1, hadc2, hadc3, hadc4;
 
@@ -376,11 +376,11 @@ static int Iuoff, Ivoff, Iwoff;
         Iuoff = 0;
         Ivoff = 0;
         Iwoff = 0;
-		if((_motor->offset.Iu>1500) &&(_motor->offset.Iu<2600)&&(_motor->offset.Iv>1500) &&(_motor->offset.Iv<2600)&&(_motor->offset.Iw>1500) &&(_motor->offset.Iw<2600)){
+		if((_motor->offset.Iu>MAXADCVAL/3) &&(_motor->offset.Iu<MAXADCVAL*2/3)&&(_motor->offset.Iv>MAXADCVAL/3) &&(_motor->offset.Iv<MAXADCVAL*2/3)&&(_motor->offset.Iw>MAXADCVAL/3) &&(_motor->offset.Iw<MAXADCVAL*2/3)){
 			//ToDo, do we want some safety checks here like offsets being roughly correct?
 					_motor->MotorState = MOTOR_STATE_TRACKING;
 			        _motor->key_bits &= ~UNINITIALISED_KEY;
-					htim1.Instance->BDTR |= TIM_BDTR_MOE;
+					htim8.Instance->BDTR |= TIM_BDTR_MOE;
 		}else{
 			handleError(_motor, ERROR_STARTUP);
 			//Should just loop until this succeeds
@@ -1481,10 +1481,10 @@ static int carryU, carryV, carryW;
  void measureResistance(MESC_motor_typedef *_motor) {
     if (_motor->meas.PWM_cycles < 2) {
     	_motor->meas.previous_HFI_type = _motor->HFIType;
-      uint16_t half_ARR = htim1.Instance->ARR / 2;
-      htim1.Instance->CCR1 = half_ARR;
-      htim1.Instance->CCR2 = half_ARR;
-      htim1.Instance->CCR3 = half_ARR;
+      uint16_t half_ARR = htim8.Instance->ARR / 2;
+      htim8.Instance->CCR1 = half_ARR;
+      htim8.Instance->CCR2 = half_ARR;
+      htim8.Instance->CCR3 = half_ARR;
       _motor->m.R = 0.001f;     // Initialise with a very low value 1mR
       _motor->m.L_D = 0.000001f;  // Initialise with a very low value 1uH
       _motor->m.L_Q = 0.000001f;
@@ -1837,63 +1837,63 @@ __NOP();
   // Turn all phase U FETs off, Tristate the HBridge output - For BLDC mode
   // mainly, but also used for measuring, software fault detection and recovery
   void phU_Break(MESC_motor_typedef *_motor) {
-    tmpccmrx = htim1.Instance->CCMR1;
+    tmpccmrx = htim8.Instance->CCMR1;
     tmpccmrx &= ~TIM_CCMR1_OC1M;
     tmpccmrx &= ~TIM_CCMR1_CC1S;
     tmpccmrx |= TIM_OCMODE_FORCED_INACTIVE;
-    htim1.Instance->CCMR1 = tmpccmrx;
-    htim1.Instance->CCER &= ~TIM_CCER_CC1E;   // disable
-    htim1.Instance->CCER &= ~TIM_CCER_CC1NE;  // disable
+    htim8.Instance->CCMR1 = tmpccmrx;
+    htim8.Instance->CCER &= ~TIM_CCER_CC1E;   // disable
+    htim8.Instance->CCER &= ~TIM_CCER_CC1NE;  // disable
   }
   // Basically un-break phase U, opposite of above...
   void phU_Enable(MESC_motor_typedef *_motor) {
-    tmpccmrx = htim1.Instance->CCMR1;
+    tmpccmrx = htim8.Instance->CCMR1;
     tmpccmrx &= ~TIM_CCMR1_OC1M;
     tmpccmrx &= ~TIM_CCMR1_CC1S;
     tmpccmrx |= TIM_OCMODE_PWM1;
-    htim1.Instance->CCMR1 = tmpccmrx;
-    htim1.Instance->CCER |= TIM_CCER_CC1E;   // enable
-    htim1.Instance->CCER |= TIM_CCER_CC1NE;  // enable
+    htim8.Instance->CCMR1 = tmpccmrx;
+    htim8.Instance->CCER |= TIM_CCER_CC1E;   // enable
+    htim8.Instance->CCER |= TIM_CCER_CC1NE;  // enable
   }
 
   void phV_Break(MESC_motor_typedef *_motor) {
-    tmpccmrx = htim1.Instance->CCMR1;
+    tmpccmrx = htim8.Instance->CCMR1;
     tmpccmrx &= ~TIM_CCMR1_OC2M;
     tmpccmrx &= ~TIM_CCMR1_CC2S;
     tmpccmrx |= TIM_OCMODE_FORCED_INACTIVE << 8;
-    htim1.Instance->CCMR1 = tmpccmrx;
-    htim1.Instance->CCER &= ~TIM_CCER_CC2E;   // disable
-    htim1.Instance->CCER &= ~TIM_CCER_CC2NE;  // disable
+    htim8.Instance->CCMR1 = tmpccmrx;
+    htim8.Instance->CCER &= ~TIM_CCER_CC2E;   // disable
+    htim8.Instance->CCER &= ~TIM_CCER_CC2NE;  // disable
   }
 
   void phV_Enable(MESC_motor_typedef *_motor) {
-    tmpccmrx = htim1.Instance->CCMR1;
+    tmpccmrx = htim8.Instance->CCMR1;
     tmpccmrx &= ~TIM_CCMR1_OC2M;
     tmpccmrx &= ~TIM_CCMR1_CC2S;
     tmpccmrx |= TIM_OCMODE_PWM1 << 8;
-    htim1.Instance->CCMR1 = tmpccmrx;
-    htim1.Instance->CCER |= TIM_CCER_CC2E;   // enable
-    htim1.Instance->CCER |= TIM_CCER_CC2NE;  // enable
+    htim8.Instance->CCMR1 = tmpccmrx;
+    htim8.Instance->CCER |= TIM_CCER_CC2E;   // enable
+    htim8.Instance->CCER |= TIM_CCER_CC2NE;  // enable
   }
 
   void phW_Break(MESC_motor_typedef *_motor) {
-    tmpccmrx = htim1.Instance->CCMR2;
+    tmpccmrx = htim8.Instance->CCMR2;
     tmpccmrx &= ~TIM_CCMR2_OC3M;
     tmpccmrx &= ~TIM_CCMR2_CC3S;
     tmpccmrx |= TIM_OCMODE_FORCED_INACTIVE;
-    htim1.Instance->CCMR2 = tmpccmrx;
-    htim1.Instance->CCER &= ~TIM_CCER_CC3E;   // disable
-    htim1.Instance->CCER &= ~TIM_CCER_CC3NE;  // disable
+    htim8.Instance->CCMR2 = tmpccmrx;
+    htim8.Instance->CCER &= ~TIM_CCER_CC3E;   // disable
+    htim8.Instance->CCER &= ~TIM_CCER_CC3NE;  // disable
   }
 
   void phW_Enable(MESC_motor_typedef *_motor) {
-    tmpccmrx = htim1.Instance->CCMR2;
+    tmpccmrx = htim8.Instance->CCMR2;
     tmpccmrx &= ~TIM_CCMR2_OC3M;
     tmpccmrx &= ~TIM_CCMR2_CC3S;
     tmpccmrx |= TIM_OCMODE_PWM1;
-    htim1.Instance->CCMR2 = tmpccmrx;
-    htim1.Instance->CCER |= TIM_CCER_CC3E;   // enable
-    htim1.Instance->CCER |= TIM_CCER_CC3NE;  // enable
+    htim8.Instance->CCMR2 = tmpccmrx;
+    htim8.Instance->CCER |= TIM_CCER_CC3E;   // enable
+    htim8.Instance->CCER |= TIM_CCER_CC3NE;  // enable
   }
 
   void calculateFlux(MESC_motor_typedef *_motor) {
@@ -2005,20 +2005,20 @@ __NOP();
   void doublePulseTest(MESC_motor_typedef *_motor) {
     static int dp_counter;
     if  (dp_counter == 0) { //Let bootstrap charge
-    	__HAL_TIM_DISABLE_IT(&htim1,TIM_IT_UPDATE); //DISABLE INTERRUPT, DANGEROUS
+    	__HAL_TIM_DISABLE_IT(&htim8,TIM_IT_UPDATE); //DISABLE INTERRUPT, DANGEROUS
     	phU_Enable(_motor);
         phV_Enable(_motor);
         phW_Enable(_motor);
-        htim1.Instance->CCR1 = 0;
-        htim1.Instance->CCR2 = 0;
-        htim1.Instance->CCR3 = 0;
+        htim8.Instance->CCR1 = 0;
+        htim8.Instance->CCR2 = 0;
+        htim8.Instance->CCR3 = 0;
         test_vals.dp_current_final[dp_counter] =
             _motor->Conv.Iv;
         dp_counter++;
       } else if(dp_counter <= (dp_periods-3)) { //W State ON
-      htim1.Instance->CCR1 = 0;
-      htim1.Instance->CCR2 = 0;
-      htim1.Instance->CCR3 = htim1.Instance->ARR;
+      htim8.Instance->CCR1 = 0;
+      htim8.Instance->CCR2 = 0;
+      htim8.Instance->CCR3 = htim8.Instance->ARR;
       phU_Break(_motor);
       phV_Enable(_motor);
       phW_Enable(_motor);
@@ -2026,27 +2026,27 @@ __NOP();
           _motor->Conv.Iv;
       dp_counter++;
     } else if (dp_counter == (dp_periods-2)) { //Freewheel
-        htim1.Instance->CCR2 = 0;
-        htim1.Instance->CCR3 = 0;
+        htim8.Instance->CCR2 = 0;
+        htim8.Instance->CCR3 = 0;
         test_vals.dp_current_final[dp_counter] =
             _motor->Conv.Iv;
         dp_counter++;
      }else if (dp_counter == (dp_periods-1)) { //W short second pulse
-        htim1.Instance->CCR2 = 0;
-        htim1.Instance->CCR3 = 200;
+        htim8.Instance->CCR2 = 0;
+        htim8.Instance->CCR3 = 200;
         test_vals.dp_current_final[dp_counter] =
             _motor->Conv.Iv;
         dp_counter++;
      } else if (dp_counter == dp_periods) { //Freewheel a bit to see the current
-          htim1.Instance->CCR2 = 0;
-          htim1.Instance->CCR3 = 0;
+          htim8.Instance->CCR2 = 0;
+          htim8.Instance->CCR3 = 0;
           test_vals.dp_current_final[dp_counter] =
               _motor->Conv.Iv;
           dp_counter++;
         }else { //Turn all off
-      htim1.Instance->CCR1 = 0;
-      htim1.Instance->CCR2 = 0;
-      htim1.Instance->CCR3 = 0;
+      htim8.Instance->CCR1 = 0;
+      htim8.Instance->CCR2 = 0;
+      htim8.Instance->CCR3 = 0;
       test_vals.dp_current_final[dp_counter] =
           _motor->Conv.Iv;
       dp_counter = 0;
@@ -2414,15 +2414,15 @@ _motor->offset.Iw = 0.9999f*_motor->offset.Iw +0.0001f*(float)_motor->Raw.Iw;
 	  		}
 	  		if(countdown > 10){
 	  			generateBreak(_motor);
-	  			htim1.Instance->CCR1 = 50;
-	  			htim1.Instance->CCR2 = 50;
-	  			htim1.Instance->CCR3 = 50;
+	  			htim8.Instance->CCR1 = 50;
+	  			htim8.Instance->CCR2 = 50;
+	  			htim8.Instance->CCR3 = 50;
 	  			//Preload the timer at mid
 	  		}
 	  		if(countdown <= 10 && countdown>1 ){
-	  			htim1.Instance->CCR1 = 50;
-	  			htim1.Instance->CCR2 = 50;
-	  			htim1.Instance->CCR3 = 50;
+	  			htim8.Instance->CCR1 = 50;
+	  			htim8.Instance->CCR2 = 50;
+	  			htim8.Instance->CCR3 = 50;
 	  			generateEnable(_motor);
 	  		}
 	  		if(countdown == 1 ){
@@ -2535,27 +2535,27 @@ uint16_t test_counts;
 	  if(test_on_time<1){test_on_time = 1;}
 
 		if(use_phase==0){
-			htim1.Instance->CCR1 = test_on_time;
-			htim1.Instance->CCR2 = 0;
-			htim1.Instance->CCR3 = 0;
+			htim8.Instance->CCR1 = test_on_time;
+			htim8.Instance->CCR2 = 0;
+			htim8.Instance->CCR3 = 0;
 			if(_motor->Conv.Iu<1.0f){ test_on_time=test_on_time+1;}
 			if(_motor->Conv.Iu>1.0f){ test_on_time=test_on_time-1;}
 			generateEnable(_motor);
 			test_on_time_acc[0] = test_on_time_acc[0]+test_on_time;
 			}
 		if(use_phase==1){
-			htim1.Instance->CCR1 = 0;
-			htim1.Instance->CCR2 = test_on_time;
-			htim1.Instance->CCR3 = 0;
+			htim8.Instance->CCR1 = 0;
+			htim8.Instance->CCR2 = test_on_time;
+			htim8.Instance->CCR3 = 0;
 			if(_motor->Conv.Iv<1.0f){ test_on_time=test_on_time+1;}
 			if(_motor->Conv.Iv>1.0f){ test_on_time=test_on_time-1;}
 			generateEnable(_motor);
 			test_on_time_acc[1] = test_on_time_acc[1]+test_on_time;
 		}
 		if(use_phase==2){
-			htim1.Instance->CCR1 = 0;
-			htim1.Instance->CCR2 = 0;
-			htim1.Instance->CCR3 = test_on_time;
+			htim8.Instance->CCR1 = 0;
+			htim8.Instance->CCR2 = 0;
+			htim8.Instance->CCR3 = test_on_time;
 			if(_motor->Conv.Iw<1.0f){ test_on_time=test_on_time+1;}
 			if(_motor->Conv.Iw>1.0f){ test_on_time=test_on_time-1;}
 			generateEnable(_motor);
@@ -3006,6 +3006,7 @@ void collectInputs(MESC_motor_typedef *_motor){
 	  }
 
 	  //RCPWM input
+	  /*
 	  if(input_vars.input_options & 0b0100){
 		  if(input_vars.pulse_recieved){
 			  if((input_vars.IC_duration > input_vars.IC_duration_MIN) && (input_vars.IC_duration < input_vars.IC_duration_MAX)){
@@ -3037,6 +3038,7 @@ void collectInputs(MESC_motor_typedef *_motor){
 	  } else{
 		  input_vars.RCPWM_req = 0.0f;
 	  }
+	  */
 
 	  //ADC2 input
 	  if(input_vars.input_options & 0b0010){

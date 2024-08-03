@@ -29,6 +29,8 @@
 #include "MESCflash.h"
 
 extern ADC_HandleTypeDef hadc1;
+extern ADC_HandleTypeDef hadc2;
+extern ADC_HandleTypeDef hadc3;
 
 extern TIM_HandleTypeDef htim1;
 
@@ -52,41 +54,41 @@ void hw_init(MESC_motor_typedef *_motor) {
   g_hw_setup.RVBT = R_VBUS_TOP;  //
   g_hw_setup.OpGain = OPGAIN;   //
   g_hw_setup.VBGain =
-      (3.3f / 4096.0f) * (g_hw_setup.RVBB + g_hw_setup.RVBT) / g_hw_setup.RVBB;
-  g_hw_setup.Igain = 3.3 / (g_hw_setup.Rshunt * 4096 * g_hw_setup.OpGain * SHUNT_POLARITY);  // TODO
+      (3.3f / (float)MAXADCVAL) * (g_hw_setup.RVBB + g_hw_setup.RVBT) / g_hw_setup.RVBB;
+  g_hw_setup.Igain = 3.3 / (g_hw_setup.Rshunt * MAXADCVAL * g_hw_setup.OpGain * SHUNT_POLARITY);  // TODO
   g_hw_setup.RawCurrLim =
-      g_hw_setup.Imax * g_hw_setup.Rshunt * g_hw_setup.OpGain * (4096 / 3.3) +
-      2048;
-  if (g_hw_setup.RawCurrLim > 4000) {
-    g_hw_setup.RawCurrLim = 4000;
+      g_hw_setup.Imax * g_hw_setup.Rshunt * g_hw_setup.OpGain * (MAXADCVAL / 3.3) +
+	  MAXADCVAL/2;
+  if (g_hw_setup.RawCurrLim > MAXADCVAL * 0.976f) {
+    g_hw_setup.RawCurrLim =  MAXADCVAL * 0.976f;
   }  // 4000 is 96 counts away from ADC saturation, allow headroom for opamp not
      // pulling rail:rail.
   g_hw_setup.RawVoltLim =
-      (uint16_t)(4096.0f * (g_hw_setup.Vmax / 3.3f) * g_hw_setup.RVBB /
+      (uint16_t)(MAXADCVAL * (g_hw_setup.Vmax / 3.3f) * g_hw_setup.RVBB /
                  (g_hw_setup.RVBB + g_hw_setup.RVBT));
 }
 
 void getRawADC(MESC_motor_typedef *_motor) {
 //Get the injected critical conversions
-  _motor->Raw.Iu = hadc1.Instance->JDR1;// PhaseU Current
-  _motor->Raw.Iv = hadc1.Instance->JDR2;
-  _motor->Raw.Iw = hadc1.Instance->JDR3;
-  _motor->Raw.Vbus = hadc1.Instance->JDR4; //Bus/battery voltage
+	_motor->Raw.Iu = hadc3.Instance->JDR1;  // U Current
+	_motor->Raw.Iv = hadc2.Instance->JDR1;  // V Current
+	_motor->Raw.Iw = hadc1.Instance->JDR1;  // W Current
+	_motor->Raw.Vbus = hadc3.Instance->JDR2; //Supply voltage
 
 //These are handled by regular conversion manager and DMA
   //GET_THROTTLE_INPUT;
 
 //MOS temperature for MP2
-  _motor->Raw.MOSu_T = ADC_buffer[5]; //Temperature on PB1
+  _motor->Raw.MOSu_T = 4000;//ADC_buffer[5]; //Temperature on PB1 (temporary disabeling)
 //Motor temp or Brake, needs plumbing in to main MESC...
-  _motor->Raw.ADC_in_ext2 = ADC_buffer[4];
+  _motor->Raw.ADC_in_ext2 = 4000;//ADC_buffer[4];//temporary disabeling
 }
 
 void getRawADCVph(MESC_motor_typedef *_motor){
 	//Voltage sense for the MP2
-	  _motor->Raw.Vu = ADC_buffer[0]; //PhaseU Voltage
-	  _motor->Raw.Vv = ADC_buffer[1];
-	  _motor->Raw.Vw = ADC_buffer[2];
+	_motor->Raw.Vu = hadc2.Instance->JDR3; //Phase U Voltage
+	_motor->Raw.Vv = hadc2.Instance->JDR2; //Phase V Voltage
+	_motor->Raw.Vw = hadc1.Instance->JDR2; //Phase W Voltage
 }
 #if 0
 static uint32_t const flash_sector_map[] = {
@@ -193,31 +195,49 @@ void mesc_init_2( MESC_motor_typedef *_motor )
 
 void mesc_init_3( MESC_motor_typedef *_motor )
 {
-	
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC_buffer, 6);
-	HAL_ADCEx_InjectedStart(&hadc1);
+	_motor->mtimer->Instance->CCR4 = _motor->mtimer->Instance->ARR-5; //Just short of dead center (dead center will not actually trigger the conversion)
 
-	HAL_TIM_PWM_Start(_motor->mtimer, TIM_CHANNEL_4);
-	
-	HAL_TIM_PWM_Start(_motor->mtimer, TIM_CHANNEL_1);
-	HAL_TIMEx_PWMN_Start(_motor->mtimer, TIM_CHANNEL_1);
+	//Stop all ADCs
+	HAL_ADC_Stop(&hadc1);
+	HAL_ADC_Stop(&hadc2);
+	HAL_ADC_Stop(&hadc3);
 
-	HAL_TIM_PWM_Start(_motor->mtimer, TIM_CHANNEL_2);
-	HAL_TIMEx_PWMN_Start(_motor->mtimer, TIM_CHANNEL_2);
+	//Start a calibration for every adc
+	HAL_ADCEx_Calibration_Start(&hadc1, ADC_CALIB_OFFSET_LINEARITY, ADC_SINGLE_ENDED);
+	HAL_ADCEx_Calibration_Start(&hadc2, ADC_CALIB_OFFSET_LINEARITY, ADC_SINGLE_ENDED);
+	HAL_ADCEx_Calibration_Start(&hadc3, ADC_CALIB_OFFSET_LINEARITY, ADC_SINGLE_ENDED);
 	
-	HAL_TIM_PWM_Start(_motor->mtimer, TIM_CHANNEL_3);
-	HAL_TIMEx_PWMN_Start(_motor->mtimer, TIM_CHANNEL_3);
+	HAL_TIM_PWM_Start(_motor->mtimer, TIM_CHANNEL_4 );
+	
+    HAL_TIM_PWM_Start(    _motor->mtimer, TIM_CHANNEL_1 );
+    HAL_TIMEx_PWMN_Start( _motor->mtimer, TIM_CHANNEL_1 );
+    HAL_TIM_PWM_Start(    _motor->mtimer, TIM_CHANNEL_2 );
+    HAL_TIMEx_PWMN_Start( _motor->mtimer, TIM_CHANNEL_2 );
+    HAL_TIM_PWM_Start(    _motor->mtimer, TIM_CHANNEL_3 );
+    HAL_TIMEx_PWMN_Start( _motor->mtimer, TIM_CHANNEL_3 );
+	
 	generateBreak(_motor); //avoid a spurious pulse on startup
 	HAL_Delay(10); //Delay enabling interrupt to avoid spurious error on startup due to ADC not being ready
 
-	__HAL_ADC_ENABLE_IT(&hadc1, ADC_IT_AWD); //ToDo, how do I put this into the whole shabang with multiple motors?...
-	__HAL_ADC_ENABLE_IT(&hadc1, ADC_IT_JEOC); //ToDo, how do I put this into the whole shabang with multiple motors?...
+	HAL_ADCEx_InjectedStart( &hadc1 );
+	HAL_ADCEx_InjectedStart( &hadc2 );
+	HAL_ADCEx_InjectedStart( &hadc3 );
+
+	//__HAL_ADC_ENABLE_IT(&hadc2, ADC_IT_AWD); //ToDo, how do I put this into the whole shabang with multiple motors?...
+	__HAL_ADC_ENABLE_IT(&hadc2, ADC_IT_JEOC); //ToDo, how do I put this into the whole shabang with multiple motors?...
 	__HAL_TIM_ENABLE_IT(_motor->mtimer, TIM_IT_UPDATE);
 
-	//Set up the input capture for throttle
-	HAL_TIM_IC_Start(_motor->stimer, TIM_CHANNEL_1);
-	HAL_TIM_IC_Start(_motor->stimer, TIM_CHANNEL_2);
+	uint32_t ARR_val = 99999;//16bit wert
+	uint16_t PSC_val = 0;
+	uint32_t MAX_ARR_VALUE = 65000;
+	ARR_val = ((HAL_RCC_GetHCLKFreq()/ (SLOWLOOP_FREQUENCY  * (PSC_val+1))) - 1);
+	while(ARR_val > MAX_ARR_VALUE){
+		PSC_val++;
+		ARR_val = ((HAL_RCC_GetHCLKFreq()/ (SLOWLOOP_FREQUENCY  * (PSC_val+1))) - 1);
+	}
+
+	__HAL_TIM_SET_AUTORELOAD(_motor->stimer, ARR_val); //Run Slowtimer at Slow_Frequence
+	__HAL_TIM_SET_PRESCALER(_motor->stimer, PSC_val);
+	HAL_TIM_PWM_Start(_motor->stimer, TIM_CHANNEL_1);
 	__HAL_TIM_ENABLE_IT(_motor->stimer, TIM_IT_UPDATE);
-	// Here we can auto set the prescaler to get the us input regardless of the main clock
-	__HAL_TIM_SET_PRESCALER(_motor->stimer, (HAL_RCC_GetHCLKFreq() / 1000000 - 1));
 }

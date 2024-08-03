@@ -85,8 +85,8 @@
 #define USE_CLAMPED_OBSERVER_CENTERING //Pick one of the two centering methods... preferably this one
 
 /////////////////////Related to COMMs INTERFACE//////////////////////////////
-#define MESC_UART_USB 		MESC_USB
-#define HW_UART huart3
+//#define MESC_UART_USB 		MESC_USB
+#define HW_UART huart5
 
 /////////////////////Prototype stuff that does not really work nicely//////////////////////////////
 
@@ -103,10 +103,10 @@
 #define SINGLE_ADC
 #define MESC_GPIO_HALL GPIOC
 
-extern TIM_HandleTypeDef htim10;
+extern TIM_HandleTypeDef htim1;
 extern SPI_HandleTypeDef hspi3;
 
-#define debugtim htim10
+#define debugtim htim1
 
 /*
 Function prototypes

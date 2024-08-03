@@ -1,0 +1,1 @@
+Target of WESC is to simplify the Software and increase portability 

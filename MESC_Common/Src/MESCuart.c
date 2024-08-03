@@ -33,6 +33,7 @@
 
 #include "MESCfoc.h"
 #include "MESCmotor_state.h"
+#include "MESC_H743.h"
 
 #if MESC_UART_USB
 #include "usbd_cdc_if.h"
@@ -127,6 +128,7 @@ static void cmd_stop( void )
 
 generateBreak(&mtr[0]);
 MotorState = MOTOR_STATE_TRACKING;
+cli_reply( "%s" "\r" "\n", "Motor stopped" );
 }
 
 static void cmd_parameter_setup( void )
@@ -163,14 +165,17 @@ cli_reply( "%s%f" "\r" "\n", "Iq",mtr[0].FOC.Idq_req.q );
 static void cmd_measure( void )
 {
     MotorState = MOTOR_STATE_MEASURING;
+    cli_reply( "%s" "\r" "\n", "Measuring started!" );
 }
 static void cmd_getkV( void )
 {
     MotorState = MOTOR_STATE_GET_KV;
+    cli_reply( "%s" "\r" "\n", "KV detection started!" );
 }
 static void cmd_detect( void )
 {
     MotorState = MOTOR_STATE_DETECTING;
+    cli_reply( "%s" "\r" "\n", "Detection started!" );
 }
 
 void uart_init( void )

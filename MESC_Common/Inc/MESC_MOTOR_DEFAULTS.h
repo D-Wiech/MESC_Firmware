@@ -33,7 +33,7 @@
 #define DEFAULT_MOTOR_Ld 0.000085f //Henries
 #define DEFAULT_MOTOR_Lq 0.000150f//Henries
 #define DEFAULT_MOTOR_R 0.0530f //Ohms
-#define DEFAULT_MOTOR_PP 7 //Pole Pairs
+#define DEFAULT_MOTOR_PP 4 //Pole Pairs
 
 #elif defined(ANT_120_70_62KV) //Reliable params, but need checking
 #define MAX_MOTOR_PHASE_CURRENT 200.0f
@@ -141,13 +141,13 @@
 //#elif defined() //... Define your motor parameters here...//
 
 #else
-#define MAX_MOTOR_PHASE_CURRENT 2.0f //2A seems like a reasonable default for any motor
-#define DEFAULT_MOTOR_POWER 50.0f //
+#define MAX_MOTOR_PHASE_CURRENT 5.0f //2A seems like a reasonable default for any motor
+#define DEFAULT_MOTOR_POWER 100.0f //
 #define DEFAULT_FLUX_LINKAGE 0.03f//Could be absolutely anything.
-#define DEFAULT_MOTOR_Ld 0.000005f //Henries Could be anything, but setting it low means the current controller P term will be more stable/slower
-#define DEFAULT_MOTOR_Lq 0.000005f//Henries
-#define DEFAULT_MOTOR_R 0.0080f //Ohms Could be anything, but setting it lower means slower I term on the PID
-#define DEFAULT_MOTOR_PP 7 //Pole Pairs
+#define DEFAULT_MOTOR_Ld 0.000162f //Henries Could be anything, but setting it low means the current controller P term will be more stable/slower
+#define DEFAULT_MOTOR_Lq 0.000162f//Henries
+#define DEFAULT_MOTOR_R 0.365f //Ohms Could be anything, but setting it lower means slower I term on the PID
+#define DEFAULT_MOTOR_PP 4 //Pole Pairs
 #define MIN_FLUX_LINKAGE DEFAULT_FLUX_LINKAGE
 #define MAX_FLUX_LINKAGE DEFAULT_FLUX_LINKAGE
 #define FLUX_LINKAGE_GAIN (10.0f * sqrtf(DEFAULT_FLUX_LINKAGE))
