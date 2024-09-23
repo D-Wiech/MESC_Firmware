@@ -19,12 +19,9 @@ typedef struct {
 	int16_t ZGYR;
 } MPU6050_data_t;
 
-
-int MPU6050Init(I2C_HandleTypeDef *i2c_handle, uint16_t address, MPU6050_data_t *MPU_instance);
+int MPU6050Init(I2C_HandleTypeDef *i2c_handle, uint16_t address,
+		MPU6050_data_t *MPU_instance);
 
 int MPU6050GetData(MPU6050_data_t *MPU_instance);
-
-
-
 
 #endif /* INC_MPU6050_H_ */

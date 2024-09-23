@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
+#include "bdma.h"
 #include "dma.h"
 #include "memorymap.h"
 #include "quadspi.h"
@@ -31,6 +32,13 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "WESC_foc.h"
+#include "us_time.h"
+
+
+#include "./infineon_6EDL7141.h"
+#include "MA732_driver.h"
+
+#include "printf.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,6 +67,20 @@ void SystemClock_Config(void);
 void PeriphCommonClock_Config(void);
 static void MPU_Config(void);
 /* USER CODE BEGIN PFP */
+void _putchar(char character)
+{
+  // send char to console etc.
+	//uart_send_txt(&character);
+	 //uart_add_data_to_buffer(&character, 1);
+	HAL_UART_Transmit(&huart5, &character, 1, 1);
+}
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size)
+{
+	if(huart == &huart5){
+		WESC_serial_callback(Size);
+	}
+}
 
 /* USER CODE END PFP */
 
@@ -103,6 +125,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
+  MX_BDMA_Init();
   MX_ADC3_Init();
   MX_QUADSPI_Init();
   MX_SPI4_Init();
@@ -117,9 +140,18 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM2_Init();
   MX_ADC2_Init();
-  MX_USB_DEVICE_Init();
   MX_ADC1_Init();
+  MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
+  us_time_init();
+
+  mtr[0].mtimer = &htim8;
+  mtr[0].stimer = &htim3;
+
+  WESC_init(&mtr[0]);
+
+  WESC_cli_init();
+
 
   /* USER CODE END 2 */
 
@@ -127,6 +159,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  HAL_Delay(300);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

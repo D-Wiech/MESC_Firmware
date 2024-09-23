@@ -18,10 +18,8 @@ typedef struct {
 	uint32_t period;
 } COMS_data_t;
 
-
 void SimpleComsInit(UART_HandleTypeDef *uart, COMS_data_t *coms_instance);
 
 void SimpleComsProcess(COMS_data_t *coms_instance);
-
 
 #endif /* INC_SIMPLE_COMS_H_ */

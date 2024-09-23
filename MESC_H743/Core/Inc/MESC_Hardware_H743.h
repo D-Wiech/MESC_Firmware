@@ -5,14 +5,14 @@
  *      Author: D Molony
  */
 
-#ifndef INC_MESC_H743_H_
-#define INC_MESC_H743_H_
+#ifndef INC_MESC_HARDWARE_H743_H_
+#define INC_MESC_HARDWARE_H743_H_
 //First, include the header specific to your board, which includes hardware parameters like ABS MAX, shunts, potential divdiders
 //Ensure only one board's header file is uncommented!
-#include "MP2_V0_1.h"
+//#include "MP2_V0_1.h"
+#include "stm32fxxx_hal.h"
 
-
-#define SOFTWARE_ADC_REGULAR
+//#define SOFTWARE_ADC_REGULAR
 
 #define HAS_PHASE_SENSORS //This refers to VOLTAGE sensing on phase, not current!
 
@@ -22,10 +22,18 @@
 //#define MISSING_VCURRSENSOR //Running this with low side sensors may result in fire.
 //#define MISSING_WCURRSENSOR //Also requires that the third ADC is spoofed in the getRawADC(void) function in MESChw_setup.c to avoid trips
 
+//PWM frequency
+#define PWM_FREQUENCY 20000
 
+//Current limits
+#define ABS_MAX_PHASE_CURRENT 25.0f
+#define ABS_MAX_BUS_VOLTAGE 50.0f
+#define ABS_MIN_BUS_VOLTAGE 10.0f
 
+//Shunt resistance
+#define R_SHUNT 0.005f
 ////////////////////USER DEFINES//////////////////
-	///////////////////RCPWM//////////////////////
+///////////////////RCPWM//////////////////////
 #define IC_DURATION_MAX 25000
 #define IC_DURATION_MIN 15000
 
@@ -35,18 +43,20 @@
 
 #define IC_PULSE_DEADZONE 100
 
-
-	/////////////////ADC///////////////
+/////////////////ADC///////////////
 #define  ADC1MIN 1200
 #define  ADC1MAX 2700
 #define  ADC2MIN 1200
 #define  ADC2MAX 4095
 
+#define MAXADCVAL 65536
+
+#define ADC_OFFSET_DEFAULT 32768.0f
+
 #define ADC1_POLARITY 1.0f
-#define ADC2_POLARITY -1.0f
+#define ADC2_POLARITY 1.0f
 
-#define DEFAULT_INPUT	0b1001 //0b...wxyz where w is UART, x is RCPWM, y is ADC2 z is ADC1
-
+#define DEFAULT_INPUT	0b1000 //0b...wxyz where w is UART, x is RCPWM, y is ADC2 z is ADC1
 
 //Use the Ebike Profile tool
 #define USE_PROFILE
@@ -59,7 +69,6 @@
 #define FIELD_WEAKENING_THRESHOLD 0.8f
 #endif
 
-
 /////////////////////Related to CIRCLE LIMITATION////////////////////////////////////////
 //#define USE_SQRT_CIRCLE_LIM
 #define USE_SQRT_CIRCLE_LIM_VD
@@ -69,7 +78,7 @@
 /////////////////////Related to ONLINE PARAMETER ESTIMATION//////////////////////////////
 #ifndef LR_OBS_CURRENT
 #define LR_OBS_CURRENT 0.1*MAX_IQ_REQUEST 	//Inject this much current into the d-axis at the slowloop frequency and observe the change in Vd and Vq
-								//Needs to be a small current that does not have much effect on the running parameters.
+//Needs to be a small current that does not have much effect on the running parameters.
 #endif
 
 /////////////////////Related to OBSERVER//////////////////////////////
@@ -79,8 +88,8 @@
 #define FLUX_LINKAGE_GAIN 10.0f * sqrtf(DEFAULT_FLUX_LINKAGE)//*(DEFAULT_FLUX_LINKAGE*DEFAULT_FLUX_LINKAGE)*PWM_FREQUENCY
 
 //#define USE_NONLINEAR_OBSERVER_CENTERING //This is not a preferred option, since it relies on gain tuning and instability,
-										//which is precisely what the original observer intended to avoid.
-										//Also, incompatible with flux linkage observer for now...
+//which is precisely what the original observer intended to avoid.
+//Also, incompatible with flux linkage observer for now...
 #define NON_LINEAR_CENTERING_GAIN 5000.0f
 #define USE_CLAMPED_OBSERVER_CENTERING //Pick one of the two centering methods... preferably this one
 
@@ -92,31 +101,31 @@
 
 //#define USE_DEADSHORT //This can be used in place of the phase sensors for startup from running.
 #define DEADSHORT_CURRENT 30.0f	//When recovering from tracking phase without phase sensors, the
-							//deadshort function will short the phases
-							//until the current exceeds this value. At this point, it calculates the Vd Vq and phase angle
-							//Don't set too high, after 9PWM periods, it will run the calc and start the motor regardless.
-							//This seems to work best with a higher current bandwidth (~10krads-1) and using the non-linear observer centering.
-							//Broadly incompatible with the flux observer
-							//Only works for forward direction presently
-							//^^WIP, not completely stable yet
+//deadshort function will short the phases
+//until the current exceeds this value. At this point, it calculates the Vd Vq and phase angle
+//Don't set too high, after 9PWM periods, it will run the calc and start the motor regardless.
+//This seems to work best with a higher current bandwidth (~10krads-1) and using the non-linear observer centering.
+//Broadly incompatible with the flux observer
+//Only works for forward direction presently
+//^^WIP, not completely stable yet
 
 #define SINGLE_ADC
 #define MESC_GPIO_HALL GPIOC
 
 extern TIM_HandleTypeDef htim1;
-extern SPI_HandleTypeDef hspi3;
+extern SPI_HandleTypeDef hspi6;
 
 #define debugtim htim1
 
 /*
-Function prototypes
-*/
+ Function prototypes
+ */
 
 #define getHallState(...) ((MESC_GPIO_HALL->IDR >> 13) & 0x7)
 
 /*
-Profile defaults
-*/
+ Profile defaults
+ */
 
 /* Temperature parameters */
 #define MESC_TEMP_MOS_R_F     10000.0f
@@ -133,6 +142,4 @@ Profile defaults
 #define MESC_TEMP_MOTOR_SH_R    0.098243f
 #define MESC_TEMP_MOTOR_SH_R0   10000.0f
 
-
-
-#endif /* INC_MESC_H743_H_ */
+#endif /* INC_MESC_HARDWARE_H743_H_ */

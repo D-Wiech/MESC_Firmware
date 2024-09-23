@@ -3,40 +3,34 @@
 //#define HAS_PHASE_SENSORS //This is not actually true. Really needs to have phase sensors... Leaving this in because it enables tracking and PWM disabling for debug.
 //#define USE_DEADSHORT //This can be used in place of the phase sensors for startup from running.
 #define DEADSHORT_CURRENT 30.0f	//When recovering from tracking phase without phase sensors, the
-							//deadshort function will short the phases
-							//until the current exceeds this value. At this point, it calculates the Vd Vq and phase angle
-							//Don't set too high, after 9PWM periods, it will run the calc and start the motor regardless.
-							//This seems to work best with a higher current bandwidth (~10krads-1) and using the non-linear observer centering.
-							//Broadly incompatible with the flux observer
-							//Only works for forward direction presently
-							//^^WIP, not completely stable yet
+//deadshort function will short the phases
+//until the current exceeds this value. At this point, it calculates the Vd Vq and phase angle
+//Don't set too high, after 9PWM periods, it will run the calc and start the motor regardless.
+//This seems to work best with a higher current bandwidth (~10krads-1) and using the non-linear observer centering.
+//Broadly incompatible with the flux observer
+//Only works for forward direction presently
+//^^WIP, not completely stable yet
 
 //#define MISSING_UCURRSENSOR //You can run two current sensors ONLY if they are phase sensors.
 //#define MISSING_VCURRSENSOR //Running this with low side sensors may result in fire.
 //#define MISSING_WCURRSENSOR //Also requires that the third ADC is spoofed in the getRawADC(void) function in MESChw_setup.c to avoid trips
 
-#define SOFTWARE_ADC_REGULAR
-#define SHUNT_POLARITY -1.0f
+//#define SOFTWARE_ADC_REGULAR
+#define SHUNT_POLARITY 1.0f
 
-#define ABS_MAX_PHASE_CURRENT 25.0f
-#define ABS_MAX_BUS_VOLTAGE 50.0f
-#define ABS_MIN_BUS_VOLTAGE 10.0f
-#define R_SHUNT 0.005f
 //ToDo need to define using a discrete opamp with resistors to set gain vs using one with a specified gain
 
 #define R_VBUS_BOTTOM 5000.0f //Phase and Vbus voltage sensors
 #define R_VBUS_TOP 80000.0f
 #define OPGAIN 12.0f
 
-
 #define MAX_ID_REQUEST 7.0f
 #define MAX_IQ_REQUEST 20.0f
 
-#define I_MEASURE 5.0f //Higher setpoint for resistance measurement
-#define V_MEASURE 4.0f 	//Voltage setpoint for measuring inductance
+#define POLE_PAIRS 4
 
 ////////////////////USER DEFINES//////////////////
-	///////////////////RCPWM//////////////////////
+///////////////////RCPWM//////////////////////
 #define IC_DURATION_MAX 25000
 #define IC_DURATION_MIN 15000
 
@@ -45,14 +39,6 @@
 #define IC_PULSE_MID 1500
 
 #define IC_PULSE_DEADZONE 100
-
-
-	/////////////////ADC///////////////
-#define  ADC1MIN 19200
-#define  ADC1MAX 43200
-#define  ADC2MIN 19200
-#define  ADC2MAX 65536
-#define MAXADCVAL 65536
 
 #define ADC1_POLARITY 1.0f
 #define ADC2_POLARITY 1.0f
@@ -65,6 +51,8 @@
 #define DEFAULT_MOTOR_Ld 0.000162f //Henries
 #define DEFAULT_MOTOR_Lq 0.000162f//Henries
 #define DEFAULT_MOTOR_R 0.365f //Ohms
+#define DEFAULT_MOTOR_PP 4 //Pole Pairs
+#define MAX_MOTOR_PHASE_CURRENT 5.0f //2A seems like a reasonable default for any motor
 //Use the Ebike Profile tool
 //#define USE_PROFILE
 //#define USE_FIELD_WEAKENING
@@ -74,7 +62,7 @@
 #define FIELD_WEAKENING_THRESHOLD 0.8f
 //#define USE_HFI
 #define HFI_VOLTAGE 4.0f
-#define HFI_TEST_CURRENT 4.0f
+//#define HFI_TEST_CURRENT 4.0f
 
 #ifdef USE_HFI
 #define CURRENT_BANDWIDTH 1000.0f //HFI does not work if the current controller is strong enough to squash the HFI
@@ -93,7 +81,28 @@
 #define FLUX_LINKAGE_GAIN 10.0f * sqrtf(DEFAULT_FLUX_LINKAGE)//*(DEFAULT_FLUX_LINKAGE*DEFAULT_FLUX_LINKAGE)*PWM_FREQUENCY
 
 //#define USE_NONLINEAR_OBSERVER_CENTERING //This is not a preferred option, since it relies on gain tuning and instability,
-										//which is precisely what the original observer intended to avoid.
-										//Also, incompatible with flux linkage observer for now...
+//which is precisely what the original observer intended to avoid.
+//Also, incompatible with flux linkage observer for now...
 #define NON_LINEAR_CENTERING_GAIN 5000.0f
 #define USE_CLAMPED_OBSERVER_CENTERING //Pick one of the two centering methods... preferably this one
+
+//Sensor setup
+#define DEFAULT_SENSOR_MODE MOTOR_SENSOR_MODE_SENSORLESS
+
+#define USE_HFI
+#define HFI_VOLTAGE 4.0f
+//define HFI_TEST_CURRENT 0.0f
+//#define HFI_THRESHOLD 2.5f
+#define HFI45
+#define DEFAULT_HFI_TYPE HFI_TYPE_NONE
+//#define DEFAULT_HFI_TYPE HFI_TYPE_45
+//#define DEFAULT_HFI_TYPE HFI_TYPE_D
+//#define DEFAULT_HFI_TYPE HFI_TYPE_SPECIAL
+
+//#define USE_HALL_START
+#define HALL_VOLTAGE_THRESHOLD 1.5f
+
+//#define USE_SPI_ENCODER //Only supports TLE5012B in SSC mode using onewire SPI on SPI3 F405...
+//#define ENCODER_E_OFFSET 14500
+#define POLE_ANGLE (65536/POLE_PAIRS)
+//#define LOGGING

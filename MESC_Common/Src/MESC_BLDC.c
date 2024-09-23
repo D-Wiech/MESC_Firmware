@@ -5,8 +5,5 @@
  *      Author: HPEnvy
  */
 
-
 #include "MESC_BLDC.h"
-
-
 

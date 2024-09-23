@@ -11,13 +11,6 @@
 #include "stm32fxxx_hal.h"
 #include "MESCfoc.h"
 
-
-
-
-
 /* Function prototypes -----------------------------------------------*/
-
-
-
 
 #endif /* INC_MESC_BLDC_H_ */

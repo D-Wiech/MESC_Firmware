@@ -13,7 +13,7 @@
 #include "main.h"
 #include "tim.h"//only needed when periphieral inits are extern
 
-uint32_t us_elapsed_time(uint32_t* last_timestamp);
+uint32_t us_elapsed_time(uint32_t *last_timestamp);
 
 void us_time_init(void);
 

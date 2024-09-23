@@ -60,6 +60,8 @@ extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 extern ADC_HandleTypeDef hadc3;
+extern DMA_HandleTypeDef hdma_spi6_rx;
+extern DMA_HandleTypeDef hdma_spi6_tx;
 extern SPI_HandleTypeDef hspi6;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim8;
@@ -304,7 +306,7 @@ void DMA1_Stream5_IRQHandler(void)
 void ADC_IRQHandler(void)
 {
   /* USER CODE BEGIN ADC_IRQn 0 */
-
+	WESC_ADC_handler(&mtr[0]);
   /* USER CODE END ADC_IRQn 0 */
   HAL_ADC_IRQHandler(&hadc1);
   HAL_ADC_IRQHandler(&hadc2);
@@ -319,7 +321,7 @@ void ADC_IRQHandler(void)
 void TIM3_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM3_IRQn 0 */
-
+	WESC_SLOWLoop_handler(&mtr[0]);
   /* USER CODE END TIM3_IRQn 0 */
   HAL_TIM_IRQHandler(&htim3);
   /* USER CODE BEGIN TIM3_IRQn 1 */
@@ -451,6 +453,34 @@ void ADC3_IRQHandler(void)
   /* USER CODE BEGIN ADC3_IRQn 1 */
 
   /* USER CODE END ADC3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles BDMA channel2 global interrupt.
+  */
+void BDMA_Channel2_IRQHandler(void)
+{
+  /* USER CODE BEGIN BDMA_Channel2_IRQn 0 */
+
+  /* USER CODE END BDMA_Channel2_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_spi6_tx);
+  /* USER CODE BEGIN BDMA_Channel2_IRQn 1 */
+
+  /* USER CODE END BDMA_Channel2_IRQn 1 */
+}
+
+/**
+  * @brief This function handles BDMA channel3 global interrupt.
+  */
+void BDMA_Channel3_IRQHandler(void)
+{
+  /* USER CODE BEGIN BDMA_Channel3_IRQn 0 */
+
+  /* USER CODE END BDMA_Channel3_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_spi6_rx);
+  /* USER CODE BEGIN BDMA_Channel3_IRQn 1 */
+
+  /* USER CODE END BDMA_Channel3_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

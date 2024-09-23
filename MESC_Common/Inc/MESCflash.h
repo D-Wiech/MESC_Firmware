@@ -11,16 +11,16 @@
 #include "MESCprofile.h"
 
 /*
-TODO: Define in MESChw_setup.c
-BEGIN
-*/
-uint32_t getFlashBaseAddress( void );
-uint32_t getFlashBaseSize( void );
-ProfileStatus eraseFlash( uint32_t const address, uint32_t const length );
+ TODO: Define in MESChw_setup.c
+ BEGIN
+ */
+uint32_t getFlashBaseAddress(void);
+uint32_t getFlashBaseSize(void);
+ProfileStatus eraseFlash(uint32_t const address, uint32_t const length);
 /*
-END
-*/
+ END
+ */
 
-void flash_register_profile_io( void );
+void flash_register_profile_io(void);
 
 #endif /* INC_MESCFLASH_H_ */

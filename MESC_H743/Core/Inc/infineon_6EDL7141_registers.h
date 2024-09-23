@@ -1,5 +1,3 @@
-
-
 #ifndef INFINEON_6EDL7141_REGISTERS
 #define INFINEON_6EDL7141_REGISTERS
 
@@ -36,121 +34,87 @@
 #define CSAMP_CFG2_ADDR 0x1E	  // Current sense amplifier configuration 2
 #define OTP_PROG_ADDR 0x1F		  // OTP program
 
-enum PWMMode
-{
+enum PWMMode {
 	PWM6_Mode = 0b000,
 	PWM3_Mode = 0b001,
 	PWM1_Mode = 0b010,
 	PWM1_Hall_Mode = 0b011
 };
 
-enum GateDrivingVoltage
-{
-	_12V = 0b00,
-	_15V = 0b01,
-	_10V = 0b10,
-	_7V = 0b11
+enum GateDrivingVoltage {
+	_12V = 0b00, _15V = 0b01, _10V = 0b10, _7V = 0b11
 };
 
-enum CurrentSenseReference
-{
+enum CurrentSenseReference {
 	HALF_DVDD = 0b00,
 	FIVE_TWELTHS_DVDD = 0b01,
 	THIRD_DVDD = 0b10,
 	QUARTER_DVDD = 0b11
 };
 
-enum CurrentThreshold
-{
-	CT_450mA = 0b00,
-	CT_300mA = 0b01,
-	CT_150mA = 0b10,
-	CT_50mA = 0b11
+enum CurrentThreshold {
+	CT_450mA = 0b00, CT_300mA = 0b01, CT_150mA = 0b10, CT_50mA = 0b11
 };
 
-enum DVDDVoltage
-{
+enum DVDDVoltage {
 	ANALOG = 0b00, // the LDO voltage (DVDD) is set using resistors on VSENSE pin
 	_3V3 = 0b10,
 	_5V = 0b11
 };
 
-enum BuckFrequency
-{
-	BF_500kHz = 0b0,
-	BF_1MHz = 0b1
+enum BuckFrequency {
+	BF_500kHz = 0b0, BF_1MHz = 0b1
 };
 
-enum DVDDTurnOnDelay
-{
-	DTOD_200us = 0b00,
-	DTOD_400us = 0b01,
-	DTOD_600us = 0b10,
-	DTOD_800us = 0b11
+enum DVDDTurnOnDelay {
+	DTOD_200us = 0b00, DTOD_400us = 0b01, DTOD_600us = 0b10, DTOD_800us = 0b11
 };
 
-enum ADCInputSelection
-{
-	AIS_IDIGITAL = 0b00,
-	AIS_DVDD = 0b01,
-	AIS_VDDB = 0b10
+enum ADCInputSelection {
+	AIS_IDIGITAL = 0b00, AIS_DVDD = 0b01, AIS_VDDB = 0b10
 };
 
-enum GenericFiltering
-{
+enum GenericFiltering {
 	GF_8_SAMPLES = 0b00,
 	GF_16_SAMPLES = 0b01,
 	GF_32_SAMPLES = 0b10,
 	GF_64_SAMPLES = 0b11
 };
 
-enum PVDDFiltering
-{
+enum PVDDFiltering {
 	PF_32_SAMPLES = 0b00,
 	PF_16_SAMPLES = 0b01,
 	PF_8_SAMPLES = 0b10,
 	PF_1_SAMPLE = 0b11
 };
 
-enum OnePWMFreewheel
-{
+enum OnePWMFreewheel {
 	Active = 0b0, // the low side MOSFETs will be switched synchronously to reduce conduction losses on the body diode conduction
-	Diode = 0b1,  // the freewheeling current will flow through the low side MOSFET body diodes.
+	Diode = 0b1, // the freewheeling current will flow through the low side MOSFET body diodes.
 };
 
-enum BrakeConfig
-{
-	LowSide = 0b00,
-	HighSide = 0b01,
-	HighZ = 0b10,
-	BrakeToggle = 0b11 // Brake toggle-alternates between low and high side braking on
+enum BrakeConfig {
+	LowSide = 0b00, HighSide = 0b01, HighZ = 0b10, BrakeToggle = 0b11 // Brake toggle-alternates between low and high side braking on
 };
 
-enum CurrentSenseAmplifierTiming
-{
-	ActiveOnGLxHigh = 0b00,
-	ActiveOnGHxLow = 0b01,
-	ActiveAlways = 0b10,
+enum CurrentSenseAmplifierTiming {
+	ActiveOnGLxHigh = 0b00, ActiveOnGHxLow = 0b01, ActiveAlways = 0b10,
 };
 
 // Watchdog input selection b000: EN_DRV pin (measure input signal frequency), b001: Reserved, b010: DVDD (linear regulator), b011: VCCLS and VCCHS, (charge pumps), b100: Status register read
 // uint16_t WD_FLTCFG : 1;
-enum WatchDogInputSelection
-{
+enum WatchDogInputSelection {
 	EnDrvPin = 0b000,
 	DVDD = 0b010,
 	ChargePumps = 0b011,
 	StatusRegisterRead = 0b100,
 };
 
-enum WatchDogFaultConfig
-{
-	StatusRegisterOnly = 0b00,
-	StatusRegisterAndNFaultPin = 0x01,
+enum WatchDogFaultConfig {
+	StatusRegisterOnly = 0b00, StatusRegisterAndNFaultPin = 0x01,
 };
 
-enum DVDDRestartDelay
-{
+enum DVDDRestartDelay {
 	DRD_500us = 0b0000,
 	DRD_1000us = 0b0001,
 	DRD_1500us = 0b0010,
@@ -191,22 +155,18 @@ enum GateDriverCurrent // for slew control
 
 /*
  */
-enum ChargePumpClockFrequency
-{
+enum ChargePumpClockFrequency {
 	_781_25_kHz = 0b00,
 	_390_625_kHz = 0b01,
 	_195_3125_kHz = 0b10,
 	_1_5625_MHz = 0b11
 };
 
-enum ChargePumpPrecharge
-{
-	en_cp_pre = 0b1,
-	dis_cp_pre = 0b0
+enum ChargePumpPrecharge {
+	en_cp_pre = 0b1, dis_cp_pre = 0b0
 };
 
-enum CurrentSenseGain
-{
+enum CurrentSenseGain {
 	_4X = 0b000,
 	_8X = 0b001,
 	_12X = 0b010,
@@ -217,14 +177,11 @@ enum CurrentSenseGain
 	_64X = 0b111
 };
 
-enum CurrentSenseGainMode
-{
-	ViaRegisterConfig = 0b0,
-	ViaAnalogPinResistr = 0b1
+enum CurrentSenseGainMode {
+	ViaRegisterConfig = 0b0, ViaAnalogPinResistr = 0b1
 };
 
-enum BlankingTime
-{
+enum BlankingTime {
 	BT_0_ns = 0b0000,
 	BT_50_ns = 0b0001,
 	BT_100_ns = 0b0010,
@@ -243,24 +200,15 @@ enum BlankingTime
 	BT_8_us = 0b1111,
 };
 
-enum DeglitchTime
-{
-	DT_0_us = 0b00,
-	DT_2_us = 0b01,
-	DT_4_us = 0b10,
-	DT_8_us = 0b11,
+enum DeglitchTime {
+	DT_0_us = 0b00, DT_2_us = 0b01, DT_4_us = 0b10, DT_8_us = 0b11,
 };
 
-enum EventCountTrigger
-{
-	_8_Events = 0b00,
-	_16_Events = 0b01,
-	All_Events = 0b10,
-	Never = 0b11,
+enum EventCountTrigger {
+	_8_Events = 0b00, _16_Events = 0b01, All_Events = 0b10, Never = 0b11,
 };
 
-enum VoltageThreshold
-{
+enum VoltageThreshold {
 	_300_mV = 0b0000,
 	_250_mV = 0b0001,
 	_225_mV = 0b0010,
@@ -279,14 +227,11 @@ enum VoltageThreshold
 	_20_mV = 0b1111,
 };
 
-enum CurrentSenseMode
-{
-	ExternalShunt = 0b0,
-	InternalRdson = 0b1, // positive is connected to drain of the low side MOSFET to the positive input of the current sense amplifier
+enum CurrentSenseMode {
+	ExternalShunt = 0b0, InternalRdson = 0b1, // positive is connected to drain of the low side MOSFET to the positive input of the current sense amplifier
 };
 
-enum AutoZero
-{
+enum AutoZero {
 	EnabledWithInternalSynchronization = 0b00,
 	Disabled = 0b01,
 	EnabledWithExternalSynchronization = 0b10,
@@ -296,7 +241,5 @@ enum AutoZero
 /**
  * Status Registers (READ only)
  */
-
-
 
 #endif

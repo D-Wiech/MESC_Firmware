@@ -10,48 +10,43 @@
 #include "stm32fxxx_hal.h"
 #define STM32L4xx_HAL_H
 
-static ProfileStatus readFlash( void        * const buffer, uint32_t const address, uint32_t const length )
-{
-    uint32_t const * src = (uint32_t const *)(getFlashBaseAddress() + address);
-    uint32_t       * dst = (uint32_t       *)buffer;
+static ProfileStatus readFlash(void *const buffer, uint32_t const address,
+		uint32_t const length) {
+	uint32_t const *src = (uint32_t const*) (getFlashBaseAddress() + address);
+	uint32_t *dst = (uint32_t*) buffer;
 
-    for ( uint32_t i = 0, j = 0; i < length; i = i + 4, j = j + 1 )
-    {
-         dst[j] = src[j];
-    }
+	for (uint32_t i = 0, j = 0; i < length; i = i + 4, j = j + 1) {
+		dst[j] = src[j];
+	}
 
-    return PROFILE_STATUS_SUCCESS;
+	return PROFILE_STATUS_SUCCESS;
 }
 
-static ProfileStatus writeBegin( void )
-{
+static ProfileStatus writeBegin(void) {
 	HAL_StatusTypeDef const sts = HAL_FLASH_Unlock();
 
-	if (sts != HAL_OK)
-	{
+	if (sts != HAL_OK) {
 		return PROFILE_STATUS_ERROR_STORAGE_WRITE;
 	}
 #ifdef USE_TTERM
 	vTaskDelay(100);
 #endif
-	uint32_t      const addr = getFlashBaseAddress();
-    ProfileStatus const ret  = eraseFlash( addr, PROFILE_MAX_SIZE );
+	uint32_t const addr = getFlashBaseAddress();
+	ProfileStatus const ret = eraseFlash(addr, PROFILE_MAX_SIZE);
 
-    return ret;
+	return ret;
 }
 
-static ProfileStatus writeFlash( void const * const buffer, uint32_t const address, uint32_t const length )
-{
-    uint32_t         addr  = getFlashBaseAddress() + address;
-    uint32_t const * src   = (uint32_t const *)buffer;
-    ProfileStatus    ret   = PROFILE_STATUS_SUCCESS;
+static ProfileStatus writeFlash(void const *const buffer,
+		uint32_t const address, uint32_t const length) {
+	uint32_t addr = getFlashBaseAddress() + address;
+	uint32_t const *src = (uint32_t const*) buffer;
+	ProfileStatus ret = PROFILE_STATUS_SUCCESS;
 
-	for ( uint32_t i = 0, j = 0; i < length; i = i + 4, j = j + 1 )
-	{
+	for (uint32_t i = 0, j = 0; i < length; i = i + 4, j = j + 1) {
 		HAL_StatusTypeDef sts = HAL_FLASH_Unlock();
 
-		if (sts != HAL_OK)
-		{
+		if (sts != HAL_OK) {
 			return PROFILE_STATUS_ERROR_STORAGE_WRITE;
 		}
 #ifndef STM32L4xx_HAL_H //ToDo FIX THIS HACK... L4 series cannot use FLASH_TYPEPROGRAM_WORD... only DOUBLEWORD
@@ -59,43 +54,38 @@ static ProfileStatus writeFlash( void const * const buffer, uint32_t const addre
 #else
 		sts = HAL_ERROR;
 #endif
-		switch (sts)
-		{
-			case HAL_OK:
-				break;
-			case HAL_ERROR:
-				ret = PROFILE_STATUS_ERROR_STORAGE_WRITE;
-				break;
-			default:
-				ret = PROFILE_STATUS_UNKNOWN;
-				break;
+		switch (sts) {
+		case HAL_OK:
+			break;
+		case HAL_ERROR:
+			ret = PROFILE_STATUS_ERROR_STORAGE_WRITE;
+			break;
+		default:
+			ret = PROFILE_STATUS_UNKNOWN;
+			break;
 		}
 
-		if (sts != HAL_OK)
-		{
+		if (sts != HAL_OK) {
 			break;
 		}
 	}
 
-    return ret;
+	return ret;
 }
 
-static ProfileStatus writeEnd( void )
-{
+static ProfileStatus writeEnd(void) {
 #ifdef USE_TTERM
 	vTaskDelay(100);
 #endif
 	HAL_StatusTypeDef const sts = HAL_FLASH_Lock();
 
-	if (sts != HAL_OK)
-	{
+	if (sts != HAL_OK) {
 		return PROFILE_STATUS_ERROR_STORAGE_WRITE;
 	}
 
 	return PROFILE_STATUS_SUCCESS;
 }
 
-void flash_register_profile_io( void )
-{
-    profile_configure_storage_io( readFlash, writeFlash, writeBegin, writeEnd );
+void flash_register_profile_io(void) {
+	profile_configure_storage_io(readFlash, writeFlash, writeBegin, writeEnd);
 }
